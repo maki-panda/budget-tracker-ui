@@ -1,13 +1,20 @@
 :root {
-  --bg-main: #f2f2f7;      /* 연한 그레이 (iOS 스타일) */
-  --card-bg: #ffffff;      /* 카드 흰색 */
-  --text-main: #1c1c1e;    /* 메인 글자색 */
-  --text-muted: #8e8e93;   /* 부가 설명색 */
-  --accent-blue: #007aff;  /* 포인트 블루 */
-  --danger-red: #ff3b30;   /* 삭제/경고 레드 */
+  --bg-main: #f2f2f7;
+  --card-bg: #ffffff;
+  --text-main: #1c1c1e;
+  --text-muted: #8e8e93;
+  --accent-blue: #007aff;
+  --danger-red: #ff3b30;
 }
 
-/* 1. 전체 화면 고정 (스크롤 원천 봉쇄) */
+.summary-card, .chart-card, .log-card, .list-panel {
+    border-radius: 20px !important; /* 오른쪽의 28px을 20px로 하향 조정 */
+    border: 1.5px solid #e5e5ea !important; /* 회색 테두리 통일 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important; /* 그림자는 아주 연하게 */
+    background-color: #ffffff !important;
+}
+
+/* 1. 전체 화면 & 레이아웃 (기존 유지) */
 html, body {
   background-color: var(--bg-main);
   color: var(--text-main);
@@ -18,152 +25,301 @@ html, body {
   overflow: hidden; 
 }
 
-/* 2. 레이아웃 구조 */
+/* 1. 컨테이너 패딩 조절로 좌우 높이 밸런스 유지 */
 .dashboard-container {
-  max-width: 600px;
-  margin: 0 auto;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    height: 100vh;
+    background-color: #f2f2f7;
+    padding: 25px; /* 전체적인 테두리 여백 확보 */
+    gap: 25px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
-.dashboard-header {
-  padding: 20px 20px 0 20px;
-  flex-shrink: 0;
+/* 1. 왼쪽 섹션 스크롤바 숨기기 */
+.stats-panel {
+    flex: 1.2;
+    height: 100%;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: min-content;
+    gap: 20px;
+    padding-right: 5px;
+    
+    /* 스크롤 기능은 유지하되 UI만 숨김 */
+    -ms-overflow-style: none; /* IE, Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+.stats-panel::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+* {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  -webkit-font-smoothing: antialiased; /* 폰트를 더 부드럽게 */
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 2. Monthly Total (summary-card) 폰트 세부 설정 */
+.summary-card .label {
+  font-family: -apple-system, sans-serif;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px; /* 영문 대문자 간격 조절 */
+  margin-bottom: 4px;
+}
+
+.summary-card .total-amount {
+  font-family: -apple-system, sans-serif;
+  font-size: 38px;
+  font-weight: 800; /* 아주 두껍게 */
+  color: var(--text-main);
+  letter-spacing: -0.5px; /* 숫자는 약간 붙여야 예쁨 */
 }
 
 .summary-card {
-  background: var(--card-bg);
-  padding: 30px;
-  border-radius: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    grid-column: span 2;
+    background: white;
+    padding: 30px;
+    border-radius: 24px;
+    height: 140px; /* 높이를 고정하여 오른쪽 패널 시작점과 매칭 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
 }
 
-.summary-card .label { color: var(--text-muted); font-size: 12px; font-weight: 600; }
-.summary-card .total-amount { font-size: 32px; font-weight: 800; color: var(--text-main); margin-top: 5px; display: block; }
+/* 2. RECENT ACTIVITY 헤더: 패널 배경에 맞춰 깔끔하게 정렬 */
+.list-header {
+    padding: 25px 25px 15px 25px;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-main);
+    background: #fdfdfd; /* 패널 배경색과 일치 */
+    z-index: 10;
+}
 
-/* 3. 리스트 스크롤 영역 */
+/* 4. 리스트 아이템 내부 폰트 (카드의 금액과 제목) */
+.card-description {
+  font-weight: 700 !important;
+  font-size: 16px;
+}
+
+.card-amount {
+  font-weight: 800 !important;
+  font-size: 17px;
+  color: var(--text-main);
+}
+
+/* 개별 차트 카드 스타일 수정 */
+/* style.css 수정 */
+
+.chart-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 15px 20px; /* 패딩 축소 */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* 위에서부터 정렬 */
+    height: 300px;
+    box-sizing: border-box;
+}
+
+.chart-card h4 {
+    margin: 0 0 10px 0; /* 제목 위 마진을 0으로 설정 */
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.chart-container {
+    flex: 1; /* 제목을 제외한 남은 공간을 다 씀 */
+    min-height: 0;
+    position: relative;
+}
+
+/* 차트 내부 컨테이너 (새로 추가) */
+.chart-container {
+  flex: 1; /* 제목을 제외한 나머지 공간을 꽉 채움 */
+  min-height: 0; /* flex 안에서 높이 찌그러짐 방지 */
+  position: relative;
+}
+
+/* 캔버스 강제 고정 */
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* 1. 오른쪽 전체 패널: 더 선명하고 깔끔한 배경으로 변경 */
+.list-panel {
+    flex: 0.8;
+    height: 100%;
+    background: #fdfdfd !important;
+    border-radius: 28px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e5e5ea;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+    overflow: hidden; /* 내부 내용이 삐져나가지 않게 함 */
+}
+
 .log-scroll {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 20px 0 20px; 
-  box-sizing: border-box;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch; 
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 20px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+
+    /* 스크롤바 UI 숨기기 */
+    -ms-overflow-style: none; /* IE, Edge */
+    scrollbar-width: none; /* Firefox */
 }
 
-/* 4. 카드 디자인 (항목 클릭 시 수정) */
+.log-scroll::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.log-scroll::-webkit-scrollbar-track {
+    background: transparent; /* 트랙 투명하게 */
+}
+
+/* 5. 스크롤바 커스텀 (반전된 배경에 맞춰 더 깔끔하게) */
+.log-scroll::-webkit-scrollbar-thumb {
+    background: #e5e5ea;
+    border-radius: 10px;
+}
+
+.log-scroll::-webkit-scrollbar-thumb:hover {
+    background: #aeaeb2;
+}
+
+/* 3. 로그 카드: 이제 카드가 반투명(Glass) 효과를 가집니다 */
 .log-card {
-  background: var(--card-bg);
-  border-radius: 16px;
-  margin-bottom: 12px;
-  display: flex;
-  overflow: hidden;
-  transition: all 0.2s ease-out;
-  cursor: pointer;
-  border: 1px solid rgba(0,0,0,0.03);
+    /* 카드 배경을 반투명하게 설정 */
+    background: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(10px); /* 뒤 배경을 흐리게 */
+    -webkit-backdrop-filter: blur(10px);
+    
+    border-radius: 16px !important; /* 외곽 패널이 20px이므로 내부는 16px이 가장 조화로움 */
+    margin-bottom: 12px;
+    padding: 18px;
+    
+    /* 테두리를 아주 연하게 주어 경계선만 살림 */
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    
+    transition: all 0.2s ease;
 }
 
-.log-card:hover { 
-  transform: scale(1.01); 
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+/* 로그 카드 마지막 항목의 마진 제거 */
+.log-card:last-child {
+    margin-bottom: 20px !important; /* 마지막 카드도 적당한 간격만 유지하고 끝 */
 }
 
-.card-edge { width: 5px; flex-shrink: 0; }
-
-.card-content {
-  flex: 1;
-  padding: 16px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* 4. 카드 호버 효과: 마우스를 올리면 더 선명해짐 */
+.log-card:hover {
+    background: rgba(255, 255, 255, 0.9) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
 }
 
-.card-info .card-date { font-size: 11px; color: var(--text-muted); font-weight: 500; }
-.card-info .card-description { font-size: 16px; font-weight: 600; color: #333; margin: 2px 0 6px 0; display: block; }
-
-.badge {
-  padding: 3px 8px;
-  border-radius: 5px;
-  font-size: 10px;
-  font-weight: 700;
-  color: white;
+/* 로그 카드 내용과 버튼 정렬 */
+.log-card .card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* 세로 중앙 정렬 */
+    width: 100%; /* 카드 내용 전체 너비 */
 }
-.badge.sub-cat { background: #f2f2f7; color: #8e8e93; margin-left: 3px; }
 
-.right-section { text-align: right; }
-.pay-method { font-size: 11px; color: var(--text-muted); font-weight: 500; }
-.card-amount { font-size: 18px; font-weight: 700; color: var(--text-main); display: block; }
-
-/* 5. 삭제 버튼 (X) 디자인 */
 .delete-btn-mini {
-  background: #f2f2f7;
-  border: none;
-  color: #c7c7cc;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  font-size: 14px;
-  margin-left: 15px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    cursor: pointer;
+    
+    /* 중앙 정렬 핵심 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    font-size: 18px;
+    line-height: 0; /* 라인 높이 제거 */
+    padding: 0;
+    padding-bottom: 2px; /* 'x' 문자가 아래로 처져 보일 때 미세 조정 */
+    
+    transition: all 0.2s;
+    opacity: 0.6;
 }
 
 .delete-btn-mini:hover {
-  background: var(--danger-red);
-  color: white;
+    background: rgba(255, 59, 48, 0.1);
+    color: var(--danger-red);
+    opacity: 1;
 }
 
-/* 6. 모달(입력/수정 화면) 디자인 */
+/* 4. 모달 및 입력창 (여백 및 스타일 복구) */
 .modal-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.4); /* 배경 흐리게 */
-  display: flex; align-items: center; justify-content: center;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center;
   z-index: 1000;
 }
 
 .modal-content {
   background: white;
-  padding: 25px;
+  padding: 30px;
   border-radius: 24px;
-  width: 90%;
-  max-width: 380px;
+  width: 380px;
   box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
 
-.modal-content h3 {
-  margin: 0 0 20px 0;
-  font-size: 18px;
-  text-align: center;
-}
-
-/* 입력 필드 스타일 */
-.app-input, .custom-select {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  border: 1px solid #e5e5ea;
-  border-radius: 12px;
-  font-size: 15px;
-  box-sizing: border-box;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.app-input:focus { border-color: var(--accent-blue); }
-
-.modal-btns {
+.input-group {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
+  flex-direction: column;
+  gap: 15px; /* 입력창 사이 간격 확보 */
+  margin: 20px 0;
 }
 
+/* 입력창 공통 스타일 */
+.app-input, .custom-select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e5e5ea;
+    border-radius: 12px;
+    font-size: 15px;
+    box-sizing: border-box;
+    background-color: #f9f9fb;
+    color: var(--text-main);
+}
+
+.app-input:focus, .custom-select:focus {
+  border-color: var(--accent-blue);
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+/* 카테고리 뱃지 스타일 */
+.badge {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+}
+.badge.sub-cat {
+  background: #e5e5ea;
+  color: #8e8e93;
+  margin-left: 4px;
+}
+
+/* 버튼들 */
+.modal-btns { display: flex; gap: 10px; }
 .btn {
   flex: 1;
   padding: 14px;
@@ -171,36 +327,34 @@ html, body {
   border: none;
   font-weight: 600;
   cursor: pointer;
+  font-size: 15px;
 }
-
 .btn-primary { background: var(--accent-blue); color: white; }
 .btn-secondary { background: #f2f2f7; color: var(--text-muted); }
 
-/* 7. 플로팅 버튼 (+) */
+/* 5. 기타 요소 (기존 유지) */
 .floating-btn {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  width: 56px;
-  height: 56px;
-  border-radius: 28px;
-  background: var(--accent-blue);
-  color: white;
-  border: none;
-  font-size: 32px;
-  box-shadow: 0 4px 12px rgba(0,122,255,0.3);
-  z-index: 100;
-  cursor: pointer;
-}
-
-/* 8. 스크롤바 커스텀 (평소에는 투명하게 숨김) */
-.log-scroll::-webkit-scrollbar {
-  width: 4px;
-}
-
-.log-scroll::-webkit-scrollbar-thumb {
-  /* 평소에는 투명하게 설정 */
-  background-color: transparent;
-  border-radius: 10px;
-  transition: background-color 0.3s;
+    position: absolute;
+    bottom: 25px;
+    right: 25px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    box-shadow: 0 8px 24px rgba(0, 122, 255, 0.3);
+    cursor: pointer;
+    z-index: 100;
+    
+    /* 중앙 정렬 핵심 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* 텍스트(문자) 정렬 보정 */
+    font-size: 32px;
+    line-height: 0; /* 라인 높이를 0으로 만들어 텍스트 기본 여백 제거 */
+    padding: 0;
+    padding-bottom: 4px; /* 플러스 기호 특성상 살짝 위로 치우쳐 보일 때만 조정 */
 }
