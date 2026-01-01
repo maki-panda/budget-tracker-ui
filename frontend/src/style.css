@@ -1,0 +1,285 @@
+/* 구글 폰트 적용 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+
+:root {
+    --color-primary: #007AFF;    /* 메인 블루 */
+    --color-secondary: #FF2D55;  /* 포인트 핑크 */
+    --color-accent: #FFCC00;     /* 강조 골드 */
+    --color-dark: #1C1C1E;       /* 다크 배경 */
+    --color-light-gray: #F2F2F7; /* 연한 회색 */
+    --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg-gradient);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* 대시보드 메인 컨테이너 */
+.dashboard-container {
+    width: 900px; 
+    height: 650px;
+    background: #ffffff;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+}
+
+/* 상단 헤더 */
+.dashboard-header {
+    background: var(--color-dark);
+    color: white;
+    padding: 30px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.label {
+    font-size: 0.75rem;
+    color: #8E8E93;
+    letter-spacing: 1px;
+}
+
+.total-amount {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: var(--color-accent);
+    display: block;
+    margin-top: 5px;
+}
+
+/* 리스트 영역 */
+.panel-header {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #8E8E93;
+    margin-bottom: 15px;
+    border-left: 3px solid var(--color-accent);
+    padding-left: 10px;
+}
+
+.log-scroll {
+    flex: 1;
+    overflow-y: scroll;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE */
+}
+
+.log-scroll::-webkit-scrollbar {
+    display: none; /* Chrome */
+}
+
+/* 리스트 카드 디자인 */
+.log-card {
+    background: #ffffff;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    display: flex;
+    overflow: hidden;
+    border: 1px solid #f0f0f0;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.log-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.card-edge {
+    width: 6px;
+}
+
+.card-content {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* 입력 필드 공통 */
+.app-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    outline: none;
+    font-size: 15px;
+    transition: 0.2s;
+    background: #f9f9f9;
+    box-sizing: border-box; /* 패딩 포함 크기 계산 */
+    margin-bottom: 10px;
+}
+
+.app-input:focus {
+    border-color: var(--color-primary);
+    background: #fff;
+}
+
+/* 아이폰 스타일 셀렉트 */
+.custom-select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    font-size: 16px;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%238e8e93%22%20d%3D%22M6%208.825L1.175%204%202.238%202.938%206%206.7%209.763%202.938%2010.825%204z%22/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    margin-bottom: 10px;
+    outline: none;
+}
+
+/* 뱃지 스타일 */
+.category-badges {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.badge {
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 6px;
+    display: inline-block;
+    color: white;
+}
+
+.badge.sub-cat {
+    background-color: var(--color-light-gray);
+    color: #666;
+}
+
+/* 플로팅 버튼 */
+.floating-btn {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    font-size: 30px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0, 122, 255, 0.3);
+    transition: 0.3s;
+}
+
+.floating-btn:hover {
+    transform: rotate(90deg) scale(1.1);
+    background: var(--color-secondary);
+}
+
+/* 모달 스타일 */
+.modal-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 24px;
+    width: 380px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-btns { display: flex; gap: 12px; margin-top: 20px; }
+
+.btn {
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    transition: 0.2s;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: white;
+    flex: 2;
+}
+
+.btn-secondary {
+    background: var(--color-light-gray);
+    color: #333;
+    flex: 1;
+}
+
+.btn:hover { opacity: 0.9; transform: scale(1.02); }
+
+/* 카드 액션 버튼 */
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: #D1D1D6;
+    transition: 0.2s;
+}
+
+.action-btn:hover { color: var(--color-dark); }
+
+.card-description {
+    /* 1. 기본 스타일: 글자 크기, 색상, 위치 */
+    font-size: 13px;
+    color: #3a3a3c;
+    font-weight: 500;
+    margin-left: 8px;
+
+    /* 2. 긴 글자 처리: 상자 너비를 넘어가면 '...'으로 변경 */
+    display: inline-block;    /* 너비 제한을 적용하기 위해 필요 */
+    max-width: 180px;         /* 글자가 허용되는 최대 가로 길이 */
+    white-space: nowrap;      /* 줄바꿈 금지 */
+    overflow: hidden;         /* 넘치는 부분 숨김 */
+    text-overflow: ellipsis;  /* 말줄임표(...) 표시 */
+    
+    vertical-align: bottom;   /* 날짜와 아래쪽 높이 맞추기 */
+}
+
+.btn-danger {
+    background-color: #ff3b30;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #d73229;
+}
+
+.delete-confirm-modal {
+    text-align: center;
+}
+
+.delete-confirm-modal p {
+    margin: 20px 0;
+    color: #8e8e93;
+}

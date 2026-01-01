@@ -1,0 +1,137 @@
+package main
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"math/rand"
+	"time"
+
+	_ "modernc.org/sqlite"
+)
+
+type Transaction struct {
+	ID          int    `json:"id"`
+	Date        string `json:"date"`
+	Category    string `json:"category"`
+	SubCategory string `json:"sub_category"`
+	Description string `json:"description"`
+	Amount      int    `json:"amount"`
+	Color       string `json:"color"`
+}
+
+type App struct {
+	ctx context.Context
+	db  *sql.DB
+}
+
+func NewApp() *App { return &App{} }
+
+func (a *App) Startup(ctx context.Context) {
+	a.ctx = ctx
+	db, err := sql.Open("sqlite", "budget.db")
+	if err != nil {
+		fmt.Println("DB 연결 실패:", err)
+		return
+	}
+	a.db = db
+
+	// 1. 필수 테이블 생성
+	a.db.Exec(`CREATE TABLE IF NOT EXISTS transactions (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		date TEXT, category TEXT, sub_category TEXT, description TEXT, amount INTEGER, type TEXT
+	);`)
+	a.db.Exec(`CREATE TABLE IF NOT EXISTS categories (
+		name TEXT PRIMARY KEY, color TEXT
+	);`)
+
+	// ⭐️ [중요] 기존 DB에 description 컬럼이 없는 경우를 대비해 강제로 추가 시도
+	// 이미 컬럼이 있으면 에러가 나지만 무시하고 넘어갑니다.
+	_, _ = a.db.Exec(`ALTER TABLE transactions ADD COLUMN description TEXT;`)
+
+	rand.Seed(time.Now().UnixNano())
+	a.fixMissingColors()
+}
+
+func (a *App) getOrAssignColor(name string) string {
+	if name == "" {
+		return "#8E8E93"
+	}
+	var color string
+	err := a.db.QueryRow("SELECT color FROM categories WHERE name = ?", name).Scan(&color)
+	if err == sql.ErrNoRows {
+		color = fmt.Sprintf("hsl(%d, 70%%, 50%%)", rand.Intn(360))
+		_, _ = a.db.Exec("INSERT OR IGNORE INTO categories (name, color) VALUES (?, ?)", name, color)
+	}
+	return color
+}
+
+func (a *App) fixMissingColors() {
+	rows, _ := a.db.Query("SELECT DISTINCT category FROM transactions")
+	if rows != nil {
+		defer rows.Close()
+		for rows.Next() {
+			var name string
+			if err := rows.Scan(&name); err == nil {
+				a.getOrAssignColor(name)
+			}
+		}
+	}
+}
+
+func (a *App) SaveTransaction(date, category, subCategory, description string, amount int) string {
+	a.getOrAssignColor(category)
+	query := `INSERT INTO transactions (date, category, sub_category, description, amount, type) VALUES (?, ?, ?, ?, ?, 'OUT')`
+	_, err := a.db.Exec(query, date, category, subCategory, description, amount)
+	if err != nil {
+		return "저장 실패: " + err.Error()
+	}
+	return "✨ 기록 완료!"
+}
+
+func (a *App) GetTransactions() []Transaction {
+	query := `
+		SELECT 
+			t.id, t.date, t.category, t.sub_category, 
+			IFNULL(t.description, ''), 
+			t.amount, 
+			IFNULL(c.color, '#8E8E93')
+		FROM transactions t
+		LEFT JOIN categories c ON t.category = c.name
+		ORDER BY t.date DESC, t.id DESC
+	`
+	rows, err := a.db.Query(query)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	results := []Transaction{}
+	for rows.Next() {
+		var t Transaction
+		err := rows.Scan(&t.ID, &t.Date, &t.Category, &t.SubCategory, &t.Description, &t.Amount, &t.Color)
+		if err != nil {
+			continue
+		}
+		results = append(results, t)
+	}
+	return results
+}
+
+func (a *App) DeleteTransaction(id int) string {
+	_, err := a.db.Exec("DELETE FROM transactions WHERE id = ?", id)
+	if err != nil {
+		return "삭제 실패"
+	}
+	return "삭제 성공"
+}
+
+func (a *App) UpdateTransaction(id int, date, category, subCategory, description string, amount int) string {
+	a.getOrAssignColor(category)
+	query := `UPDATE transactions SET date=?, category=?, sub_category=?, description=?, amount=? WHERE id=?`
+	_, err := a.db.Exec(query, date, category, subCategory, description, amount, id)
+	if err != nil {
+		return "수정 실패"
+	}
+	return "수정 성공"
+}
