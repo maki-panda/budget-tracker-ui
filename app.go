@@ -15,6 +15,7 @@ type Transaction struct {
 	Date        string `json:"date"`
 	Category    string `json:"category"`
 	SubCategory string `json:"sub_category"`
+	Payment     string `json:"payment"` // 결제 수단 추가
 	Description string `json:"description"`
 	Amount      int    `json:"amount"`
 	Color       string `json:"color"`
@@ -38,17 +39,16 @@ func (a *App) Startup(ctx context.Context) {
 
 	// 1. 필수 테이블 생성
 	a.db.Exec(`CREATE TABLE IF NOT EXISTS transactions (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		date TEXT, category TEXT, sub_category TEXT, description TEXT, amount INTEGER, type TEXT
-	);`)
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT, category TEXT, sub_category TEXT, payment TEXT, description TEXT, amount INTEGER, type TEXT
+    );`)
 	a.db.Exec(`CREATE TABLE IF NOT EXISTS categories (
 		name TEXT PRIMARY KEY, color TEXT
 	);`)
 
 	// ⭐️ [중요] 기존 DB에 description 컬럼이 없는 경우를 대비해 강제로 추가 시도
 	// 이미 컬럼이 있으면 에러가 나지만 무시하고 넘어갑니다.
-	_, _ = a.db.Exec(`ALTER TABLE transactions ADD COLUMN description TEXT;`)
-
+	_, _ = a.db.Exec(`ALTER TABLE transactions ADD COLUMN payment TEXT;`)
 	rand.Seed(time.Now().UnixNano())
 	a.fixMissingColors()
 }
@@ -79,10 +79,10 @@ func (a *App) fixMissingColors() {
 	}
 }
 
-func (a *App) SaveTransaction(date, category, subCategory, description string, amount int) string {
+func (a *App) SaveTransaction(date, category, subCategory, payment, description string, amount int) string {
 	a.getOrAssignColor(category)
-	query := `INSERT INTO transactions (date, category, sub_category, description, amount, type) VALUES (?, ?, ?, ?, ?, 'OUT')`
-	_, err := a.db.Exec(query, date, category, subCategory, description, amount)
+	query := `INSERT INTO transactions (date, category, sub_category, payment, description, amount, type) VALUES (?, ?, ?, ?, ?, ?, 'OUT')`
+	_, err := a.db.Exec(query, date, category, subCategory, payment, description, amount)
 	if err != nil {
 		return "저장 실패: " + err.Error()
 	}
@@ -90,27 +90,34 @@ func (a *App) SaveTransaction(date, category, subCategory, description string, a
 }
 
 func (a *App) GetTransactions() []Transaction {
+	// 순서: id, date, category, sub_category, payment, description, amount, color (8개)
 	query := `
-		SELECT 
-			t.id, t.date, t.category, t.sub_category, 
-			IFNULL(t.description, ''), 
-			t.amount, 
-			IFNULL(c.color, '#8E8E93')
-		FROM transactions t
-		LEFT JOIN categories c ON t.category = c.name
-		ORDER BY t.date DESC, t.id DESC
-	`
+        SELECT 
+            t.id, t.date, t.category, t.sub_category, 
+            IFNULL(t.payment, ''), 
+            IFNULL(t.description, ''), 
+            t.amount, 
+            IFNULL(c.color, '#8E8E93')
+        FROM transactions t
+        LEFT JOIN categories c ON t.category = c.name
+        ORDER BY t.date DESC, t.id DESC
+    `
 	rows, err := a.db.Query(query)
 	if err != nil {
 		return nil
 	}
 	defer rows.Close()
 
-	results := []Transaction{}
+	var results []Transaction = []Transaction{}
 	for rows.Next() {
 		var t Transaction
-		err := rows.Scan(&t.ID, &t.Date, &t.Category, &t.SubCategory, &t.Description, &t.Amount, &t.Color)
+		// ⭐️ Scan 개수를 8개로 정확히 맞춰야 데이터가 뜹니다!
+		err := rows.Scan(
+			&t.ID, &t.Date, &t.Category, &t.SubCategory,
+			&t.Payment, &t.Description, &t.Amount, &t.Color,
+		)
 		if err != nil {
+			fmt.Println("Scan Error:", err)
 			continue
 		}
 		results = append(results, t)
@@ -126,12 +133,15 @@ func (a *App) DeleteTransaction(id int) string {
 	return "삭제 성공"
 }
 
-func (a *App) UpdateTransaction(id int, date, category, subCategory, description string, amount int) string {
+// app.go 파일에서 UpdateTransaction을 찾아서 아래와 같이 수정하세요.
+func (a *App) UpdateTransaction(id int, date, category, subCategory, payment, description string, amount int) string {
 	a.getOrAssignColor(category)
-	query := `UPDATE transactions SET date=?, category=?, sub_category=?, description=?, amount=? WHERE id=?`
-	_, err := a.db.Exec(query, date, category, subCategory, description, amount, id)
+
+	// SQL 쿼리에도 payment=? 를 추가해야 합니다.
+	query := `UPDATE transactions SET date=?, category=?, sub_category=?, payment=?, description=?, amount=? WHERE id=?`
+	_, err := a.db.Exec(query, date, category, subCategory, payment, description, amount, id)
 	if err != nil {
-		return "수정 실패"
+		return "수정 실패: " + err.Error()
 	}
-	return "수정 성공"
+	return "수정이 완료되었습니다."
 }

@@ -5,6 +5,7 @@ export namespace main {
 	    date: string;
 	    category: string;
 	    sub_category: string;
+	    payment: string;
 	    description: string;
 	    amount: number;
 	    color: string;
@@ -19,6 +20,7 @@ export namespace main {
 	        this.date = source["date"];
 	        this.category = source["category"];
 	        this.sub_category = source["sub_category"];
+	        this.payment = source["payment"];
 	        this.description = source["description"];
 	        this.amount = source["amount"];
 	        this.color = source["color"];

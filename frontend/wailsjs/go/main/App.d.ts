@@ -6,6 +6,6 @@ export function DeleteTransaction(arg1:number):Promise<string>;
 
 export function GetTransactions():Promise<Array<main.Transaction>>;
 
-export function SaveTransaction(arg1:string,arg2:string,arg3:string,arg4:string,arg5:number):Promise<string>;
+export function SaveTransaction(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:number):Promise<string>;
 
-export function UpdateTransaction(arg1:number,arg2:string,arg3:string,arg4:string,arg5:string,arg6:number):Promise<string>;
+export function UpdateTransaction(arg1:number,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string,arg7:number):Promise<string>;

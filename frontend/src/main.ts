@@ -6,7 +6,6 @@ window.addEventListener('load', async () => {
     const app = document.querySelector('#app');
     if (!app) return;
 
-    // HTML 구조 렌더링 (삭제 모달 추가)
     app.innerHTML = `
         <div class="dashboard-container">
             <header class="dashboard-header">
@@ -14,11 +13,10 @@ window.addEventListener('load', async () => {
                     <span class="label">MONTHLY TOTAL</span>
                     <span class="total-amount" id="total-amount">0 원</span>
                 </div>
+                <div style="color: var(--text-muted); font-size: 13px; font-weight: 600; padding: 0 5px 10px;">RECENT ACTIVITY</div>
             </header>
 
-            <main class="dashboard-content" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
-                <div class="panel-header" style="padding: 20px 40px 10px;">RECENT ACTIVITY</div>
-                <div id="log-list" class="log-scroll" style="padding: 0 40px; flex: 1;"></div>
+            <main id="log-list" class="log-scroll">
             </main>
 
             <button id="open-modal-btn" class="floating-btn">+</button>
@@ -36,7 +34,10 @@ window.addEventListener('load', async () => {
                         <select id="sub-category-select" class="custom-select"></select>
                         <input type="text" id="sub-category-custom" placeholder="새 소분류명" class="app-input" style="display:none;">
                         
-                        <input type="text" id="description" placeholder="상세 내역 (예: 점심 식사, 편의점)" class="app-input">
+                        <select id="payment-select" class="custom-select"></select>
+                        <input type="text" id="payment-custom" placeholder="결제 수단 직접 입력" class="app-input" style="display:none;">
+
+                        <input type="text" id="description" placeholder="상세 내역" class="app-input">
                         <input type="number" id="amount" placeholder="금액 입력" class="app-input primary">
                     </div>
                     <div class="modal-btns">
@@ -68,38 +69,37 @@ function setupEventListeners() {
     const inputModal = document.getElementById('input-modal') as HTMLElement;
     const deleteModal = document.getElementById('delete-modal') as HTMLElement;
 
-    // 입력 모달 열기/닫기
     document.getElementById('open-modal-btn')?.addEventListener('click', () => {
-        document.getElementById('modal-title')!.innerText = "NEW RECORD";
+        (document.getElementById('modal-title') as HTMLElement).innerText = "NEW RECORD";
         (document.getElementById('edit-id') as HTMLInputElement).value = "";
         resetInputs();
         inputModal.style.display = 'flex';
     });
 
     document.getElementById('close-modal-btn')?.addEventListener('click', () => inputModal.style.display = 'none');
-    
-    // 삭제 모달 닫기
     document.getElementById('close-delete-btn')?.addEventListener('click', () => deleteModal.style.display = 'none');
 
-    // 모달 바깥 배경 클릭 시 닫기
     window.addEventListener('click', (e) => {
         if (e.target === inputModal) inputModal.style.display = 'none';
         if (e.target === deleteModal) deleteModal.style.display = 'none';
     });
 
-    // 직접 입력 토글 로직
+    // 💡 직접 입력 토글 로직 수정 (결제수단 포함)
     const bindToggle = (sId: string, cId: string) => {
         const s = document.getElementById(sId) as HTMLSelectElement;
         const c = document.getElementById(cId) as HTMLInputElement;
         s.addEventListener('change', () => {
             c.style.display = s.value === 'custom' ? 'block' : 'none';
-            if (s.value === 'custom') c.focus();
+            if (s.value === 'custom') {
+                c.value = "";
+                c.focus();
+            }
         });
     };
     bindToggle('category-select', 'category-custom');
     bindToggle('sub-category-select', 'sub-category-custom');
+    bindToggle('payment-select', 'payment-custom');
 
-    // 저장 및 삭제 확인 버튼
     document.getElementById('save-btn')?.addEventListener('click', handleSave);
     document.getElementById('confirm-delete-btn')?.addEventListener('click', handleConfirmDelete);
 }
@@ -117,32 +117,29 @@ async function handleSave() {
 
     const category = getVal('category-select', 'category-custom');
     const subCategory = getVal('sub-category-select', 'sub-category-custom');
+    const payment = getVal('payment-select', 'payment-custom');
 
     if (!date || !category || isNaN(amount)) return alert("필수 항목을 입력하세요.");
 
     try {
         if (editId) {
-            await UpdateTransaction(parseInt(editId), date, category, subCategory, description, amount);
+            await UpdateTransaction(parseInt(editId), date, category, subCategory, payment, description, amount);
         } else {
-            await SaveTransaction(date, category, subCategory, description, amount);
+            await SaveTransaction(date, category, subCategory, payment, description, amount);
         }
         (document.getElementById('input-modal') as HTMLElement).style.display = 'none';
         await updateList();
     } catch (err) { alert(err); }
 }
 
-// 실제 삭제 처리 함수
 async function handleConfirmDelete() {
     const id = (document.getElementById('delete-id') as HTMLInputElement).value;
     if (!id) return;
-
     try {
         await DeleteTransaction(parseInt(id));
         (document.getElementById('delete-modal') as HTMLElement).style.display = 'none';
         await updateList();
-    } catch (err) {
-        alert("삭제 실패: " + err);
-    }
+    } catch (err) { alert("삭제 실패: " + err); }
 }
 
 async function updateList() {
@@ -158,30 +155,28 @@ async function updateList() {
         if (totalElement) totalElement.innerText = `${total.toLocaleString()} 원`;
 
         if (!data || data.length === 0) {
-            listArea.innerHTML = `<div style="text-align:center; padding:50px; color:#ccc;">내역이 없습니다.</div>`;
+            listArea.innerHTML = `<div style="text-align:center; padding:50px; color:#666;">내역이 없습니다.</div>`;
             return;
         }
 
         listArea.innerHTML = data.map((t: any) => `
-            <div class="log-card">
+            <div class="log-card" onclick="window.editItem(${JSON.stringify(t).replace(/"/g, '&quot;')})">
                 <div class="card-edge" style="background-color: ${t.color || '#8E8E93'} !important;"></div>
                 <div class="card-content">
                     <div class="card-info">
-                        <div style="display: flex; align-items: baseline; gap: 10px;">
-                            <span class="card-date">${t.date}</span>
-                            <span class="card-description" title="${t.description || ''}">${t.description || ''}</span>
-                        </div>
+                        <span class="card-date">${t.date}</span>
+                        <span class="card-description">${t.description || '내역 없음'}</span>
                         <div class="category-badges">
                             <span class="badge" style="background-color: ${t.color || '#8E8E93'} !important;">${t.category}</span>
                             <span class="badge sub-cat">${t.sub_category || '-'}</span>
                         </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <span class="card-amount">${(t.amount || 0).toLocaleString()} 원</span>
-                        <div class="card-actions">
-                            <button onclick="window.editItem(${JSON.stringify(t).replace(/"/g, '&quot;')})" class="action-btn">✎</button>
-                            <button onclick="window.deleteItem(${t.id})" class="action-btn">×</button>
+                    <div style="display: flex; align-items: center;">
+                        <div class="right-section">
+                            <span class="pay-method">${t.payment || '미지정'}</span>
+                            <span class="card-amount">${(t.amount || 0).toLocaleString()} 원</span>
                         </div>
+                        <button onclick="event.stopPropagation(); window.deleteItem(${t.id})" class="delete-btn-mini">×</button>
                     </div>
                 </div>
             </div>
@@ -205,12 +200,15 @@ function updateSelectOptions(data: any[]) {
     };
     render('category-select', 'category', '카테고리 선택');
     render('sub-category-select', 'sub_category', '소분류 선택');
+    render('payment-select', 'payment', '결제 수단 선택');
 }
 
 function resetInputs() {
     (document.getElementById('date') as HTMLInputElement).value = new Date().toISOString().split('T')[0];
-    ['category-select', 'sub-category-select'].forEach(id => (document.getElementById(id) as HTMLSelectElement).value = "");
-    ['category-custom', 'sub-category-custom'].forEach(id => {
+    ['category-select', 'sub-category-select', 'payment-select'].forEach(id => {
+        (document.getElementById(id) as HTMLSelectElement).value = "";
+    });
+    ['category-custom', 'sub-category-custom', 'payment-custom'].forEach(id => {
         const el = document.getElementById(id) as HTMLElement;
         el.style.display = 'none';
         (el as HTMLInputElement).value = "";
@@ -219,18 +217,40 @@ function resetInputs() {
     (document.getElementById('amount') as HTMLInputElement).value = "";
 }
 
+// 💡 수정 모드 호출 시 셀렉트박스와 직접 입력창 처리 로직 보완
 (window as any).editItem = (t: any) => {
     (document.getElementById('modal-title') as HTMLElement).innerText = "EDIT RECORD";
     (document.getElementById('edit-id') as HTMLInputElement).value = t.id;
     (document.getElementById('date') as HTMLInputElement).value = t.date;
     (document.getElementById('amount') as HTMLInputElement).value = t.amount;
     (document.getElementById('description') as HTMLInputElement).value = t.description || "";
-    (document.getElementById('category-select') as HTMLSelectElement).value = t.category;
-    (document.getElementById('sub-category-select') as HTMLSelectElement).value = t.sub_category || "";
+
+    const setVal = (sId: string, cId: string, val: string) => {
+        const s = document.getElementById(sId) as HTMLSelectElement;
+        const c = document.getElementById(cId) as HTMLInputElement;
+        
+        // 기존 옵션에 값이 있는지 확인
+        const options = Array.from(s.options).map(o => o.value);
+        if (options.includes(val)) {
+            s.value = val;
+            c.style.display = 'none';
+        } else if (val) {
+            s.value = 'custom';
+            c.value = val;
+            c.style.display = 'block';
+        } else {
+            s.value = "";
+            c.style.display = 'none';
+        }
+    };
+
+    setVal('category-select', 'category-custom', t.category);
+    setVal('sub-category-select', 'sub-category-custom', t.sub_category);
+    setVal('payment-select', 'payment-custom', t.payment);
+
     (document.getElementById('input-modal') as HTMLElement).style.display = 'flex';
 };
 
-// 기존 confirm 대신 커스텀 모달 띄우기
 (window as any).deleteItem = (id: number) => {
     (document.getElementById('delete-id') as HTMLInputElement).value = id.toString();
     (document.getElementById('delete-modal') as HTMLElement).style.display = 'flex';

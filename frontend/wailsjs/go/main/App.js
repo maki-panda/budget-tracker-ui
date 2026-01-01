@@ -10,10 +10,10 @@ export function GetTransactions() {
   return window['go']['main']['App']['GetTransactions']();
 }
 
-export function SaveTransaction(arg1, arg2, arg3, arg4, arg5) {
-  return window['go']['main']['App']['SaveTransaction'](arg1, arg2, arg3, arg4, arg5);
+export function SaveTransaction(arg1, arg2, arg3, arg4, arg5, arg6) {
+  return window['go']['main']['App']['SaveTransaction'](arg1, arg2, arg3, arg4, arg5, arg6);
 }
 
-export function UpdateTransaction(arg1, arg2, arg3, arg4, arg5, arg6) {
-  return window['go']['main']['App']['UpdateTransaction'](arg1, arg2, arg3, arg4, arg5, arg6);
+export function UpdateTransaction(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
+  return window['go']['main']['App']['UpdateTransaction'](arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 }
