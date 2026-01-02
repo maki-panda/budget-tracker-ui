@@ -5,104 +5,192 @@
   --text-muted: #8e8e93;
   --accent-blue: #007aff;
   --danger-red: #ff3b30;
-}
-
-.summary-card, .chart-card, .log-card, .list-panel {
-    border-radius: 20px !important; /* 오른쪽의 28px을 20px로 하향 조정 */
-    border: 1.5px solid #e5e5ea !important; /* 회색 테두리 통일 */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important; /* 그림자는 아주 연하게 */
-    background-color: #ffffff !important;
-}
-
-/* 1. 전체 화면 & 레이아웃 (기존 유지) */
-html, body {
-  background-color: var(--bg-main);
-  color: var(--text-main);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  margin: 0;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden; 
-}
-
-/* 1. 컨테이너 패딩 조절로 좌우 높이 밸런스 유지 */
-.dashboard-container {
-    display: flex;
-    height: 100vh;
-    background-color: #f2f2f7;
-    padding: 25px; /* 전체적인 테두리 여백 확보 */
-    gap: 25px;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
-/* 1. 왼쪽 섹션 스크롤바 숨기기 */
-.stats-panel {
-    flex: 1.2;
-    height: 100%;
-    overflow-y: auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-auto-rows: min-content;
-    gap: 20px;
-    padding-right: 5px;
-    
-    /* 스크롤 기능은 유지하되 UI만 숨김 */
-    -ms-overflow-style: none; /* IE, Edge */
-    scrollbar-width: none; /* Firefox */
-}
-
-.stats-panel::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+  --std-border: 1.5px solid #e5e5ea;
+  --std-radius: 20px;
+  --std-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 * {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
-  -webkit-font-smoothing: antialiased; /* 폰트를 더 부드럽게 */
+  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
 }
 
-/* 2. Monthly Total (summary-card) 폰트 세부 설정 */
+html, body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  margin: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--bg-main);
+  overflow: hidden;
+  padding: 0; /* 사이드바가 끝까지 붙어야 하므로 패딩 제거 */
+}
+
+.summary-card.budget-card {
+    height: auto;
+    padding: 16px 20px; /* 기존보다 상하 패딩 축소 */
+    margin-top: 12px;
+}
+
+.summary-card, 
+.chart-card, 
+.list-panel {
+  background-color: var(--card-bg) !important;
+  border: var(--std-border) !important;
+  border-radius: var(--std-radius) !important;
+  box-shadow: var(--std-shadow) !important;
+}
+
+.stats-panel {
+  flex: 1.2;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: min-content;
+  gap: 20px;
+  padding-right: 5px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.log-scroll, #budget-category-list, .main-content {
+  -ms-overflow-style: none; /* IE, Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+#budget-category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px; /* 항목 간 간격 좁힘 */
+}
+
+/* 리스트 영역만 스크롤 가능하게 */
+#budget-category-list, 
+#side-budget-usage-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 8px;
+    -ms-overflow-style: none; scrollbar-width: none;
+}
+#budget-category-list::-webkit-scrollbar, 
+#side-budget-usage-list::-webkit-scrollbar { display: none; }
+
+.stats-panel::-webkit-scrollbar,
+.log-scroll::-webkit-scrollbar, 
+#budget-category-list::-webkit-scrollbar,
+.main-content::-webkit-scrollbar {
+  display: none;
+}
+
+.list-panel {
+  flex: 0.8;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.summary-card {
+  grid-column: span 2;
+  padding: 30px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .summary-card .label {
-  font-family: -apple-system, sans-serif;
   color: var(--text-muted);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1px; /* 영문 대문자 간격 조절 */
+  letter-spacing: 1px;
   margin-bottom: 4px;
 }
 
 .summary-card .total-amount {
-  font-family: -apple-system, sans-serif;
   font-size: 38px;
-  font-weight: 800; /* 아주 두껍게 */
-  color: var(--text-main);
-  letter-spacing: -0.5px; /* 숫자는 약간 붙여야 예쁨 */
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
-.summary-card {
-    grid-column: span 2;
-    background: white;
-    padding: 30px;
-    border-radius: 24px;
-    height: 140px; /* 높이를 고정하여 오른쪽 패널 시작점과 매칭 */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    box-sizing: border-box;
+.chart-card {
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  height: 300px;
 }
 
-/* 2. RECENT ACTIVITY 헤더: 패널 배경에 맞춰 깔끔하게 정렬 */
+.chart-card h4 {
+  margin: 0 0 10px 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.chart-container {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .list-header {
-    padding: 25px 25px 15px 25px;
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--text-main);
-    background: #fdfdfd; /* 패널 배경색과 일치 */
-    z-index: 10;
+  padding: 25px 25px 15px 25px;
+  font-size: 18px;
+  font-weight: 800;
+  background: var(--card-bg);
+  z-index: 10;
 }
 
-/* 4. 리스트 아이템 내부 폰트 (카드의 금액과 제목) */
+.log-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 20px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: none;
+}
+
+.log-card {
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px !important;
+  margin-bottom: 12px;
+  padding: 18px;
+  border: 1px solid rgba(229, 229, 234, 0.8) !important;
+  transition: all 0.2s ease;
+}
+
+.log-card:last-child {
+  margin-bottom: 20px !important;
+}
+
+.log-card:hover {
+  background: rgba(255, 255, 255, 0.9) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+.log-card .card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 .card-description {
   font-weight: 700 !important;
   font-size: 16px;
@@ -111,200 +199,8 @@ html, body {
 .card-amount {
   font-weight: 800 !important;
   font-size: 17px;
-  color: var(--text-main);
 }
 
-/* 개별 차트 카드 스타일 수정 */
-/* style.css 수정 */
-
-.chart-card {
-    background: var(--card-bg);
-    border-radius: 20px;
-    padding: 15px 20px; /* 패딩 축소 */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start; /* 위에서부터 정렬 */
-    height: 300px;
-    box-sizing: border-box;
-}
-
-.chart-card h4 {
-    margin: 0 0 10px 0; /* 제목 위 마진을 0으로 설정 */
-    font-size: 15px;
-    font-weight: 700;
-}
-
-.chart-container {
-    flex: 1; /* 제목을 제외한 남은 공간을 다 씀 */
-    min-height: 0;
-    position: relative;
-}
-
-/* 차트 내부 컨테이너 (새로 추가) */
-.chart-container {
-  flex: 1; /* 제목을 제외한 나머지 공간을 꽉 채움 */
-  min-height: 0; /* flex 안에서 높이 찌그러짐 방지 */
-  position: relative;
-}
-
-/* 캔버스 강제 고정 */
-canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* 1. 오른쪽 전체 패널: 더 선명하고 깔끔한 배경으로 변경 */
-.list-panel {
-    flex: 0.8;
-    height: 100%;
-    background: #fdfdfd !important;
-    border-radius: 28px;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #e5e5ea;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
-    overflow: hidden; /* 내부 내용이 삐져나가지 않게 함 */
-}
-
-.log-scroll {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px 20px 20px 20px;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-
-    /* 스크롤바 UI 숨기기 */
-    -ms-overflow-style: none; /* IE, Edge */
-    scrollbar-width: none; /* Firefox */
-}
-
-.log-scroll::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-}
-
-.log-scroll::-webkit-scrollbar-track {
-    background: transparent; /* 트랙 투명하게 */
-}
-
-/* 5. 스크롤바 커스텀 (반전된 배경에 맞춰 더 깔끔하게) */
-.log-scroll::-webkit-scrollbar-thumb {
-    background: #e5e5ea;
-    border-radius: 10px;
-}
-
-.log-scroll::-webkit-scrollbar-thumb:hover {
-    background: #aeaeb2;
-}
-
-/* 3. 로그 카드: 이제 카드가 반투명(Glass) 효과를 가집니다 */
-.log-card {
-    /* 카드 배경을 반투명하게 설정 */
-    background: rgba(255, 255, 255, 0.6) !important;
-    backdrop-filter: blur(10px); /* 뒤 배경을 흐리게 */
-    -webkit-backdrop-filter: blur(10px);
-    
-    border-radius: 16px !important; /* 외곽 패널이 20px이므로 내부는 16px이 가장 조화로움 */
-    margin-bottom: 12px;
-    padding: 18px;
-    
-    /* 테두리를 아주 연하게 주어 경계선만 살림 */
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-    
-    transition: all 0.2s ease;
-}
-
-/* 로그 카드 마지막 항목의 마진 제거 */
-.log-card:last-child {
-    margin-bottom: 20px !important; /* 마지막 카드도 적당한 간격만 유지하고 끝 */
-}
-
-/* 4. 카드 호버 효과: 마우스를 올리면 더 선명해짐 */
-.log-card:hover {
-    background: rgba(255, 255, 255, 0.9) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-}
-
-/* 로그 카드 내용과 버튼 정렬 */
-.log-card .card-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center; /* 세로 중앙 정렬 */
-    width: 100%; /* 카드 내용 전체 너비 */
-}
-
-.delete-btn-mini {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    cursor: pointer;
-    
-    /* 중앙 정렬 핵심 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-    font-size: 18px;
-    line-height: 0; /* 라인 높이 제거 */
-    padding: 0;
-    padding-bottom: 2px; /* 'x' 문자가 아래로 처져 보일 때 미세 조정 */
-    
-    transition: all 0.2s;
-    opacity: 0.6;
-}
-
-.delete-btn-mini:hover {
-    background: rgba(255, 59, 48, 0.1);
-    color: var(--danger-red);
-    opacity: 1;
-}
-
-/* 4. 모달 및 입력창 (여백 및 스타일 복구) */
-.modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  padding: 30px;
-  border-radius: 24px;
-  width: 380px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 15px; /* 입력창 사이 간격 확보 */
-  margin: 20px 0;
-}
-
-/* 입력창 공통 스타일 */
-.app-input, .custom-select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #e5e5ea;
-    border-radius: 12px;
-    font-size: 15px;
-    box-sizing: border-box;
-    background-color: #f9f9fb;
-    color: var(--text-main);
-}
-
-.app-input:focus, .custom-select:focus {
-  border-color: var(--accent-blue);
-  background-color: white;
-  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-}
-
-/* 카테고리 뱃지 스타일 */
 .badge {
   padding: 3px 8px;
   border-radius: 6px;
@@ -312,14 +208,140 @@ canvas {
   font-weight: 600;
   color: white;
 }
+
 .badge.sub-cat {
   background: #e5e5ea;
   color: #8e8e93;
   margin-left: 4px;
 }
 
-/* 버튼들 */
-.modal-btns { display: flex; gap: 10px; }
+/* 깔끔한 애플 스타일 저장 버튼 */
+#save-budgets-btn {
+    background-color: #007aff; /* 메인 블루 */
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 12px;      /* 둥근 모서리 */
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2); /* 은은한 그림자 */
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 마우스를 올렸을 때 (Hover) */
+#save-budgets-btn:hover {
+    background-color: #0063cc;
+    transform: translateY(-1px); /* 살짝 위로 뜨는 효과 */
+    box-shadow: 0 6px 16px rgba(0, 122, 255, 0.3);
+}
+
+/* 눌렀을 때 (Active) */
+#save-budgets-btn:active {
+    transform: translateY(0);
+    background-color: #0056b3;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+}
+
+.delete-btn-mini {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 0;
+  padding: 0 0 2px 0;
+  transition: all 0.2s;
+  opacity: 0.6;
+  margin-left: 12px;
+}
+
+.delete-btn-mini:hover {
+  background: rgba(255, 59, 48, 0.1);
+  color: var(--danger-red);
+  opacity: 1;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px 25px; /* 위아래(20px), 좌우(25px) - 기존보다 위를 줄임 */
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+}
+
+.modal-content h3 {
+    margin-top: 0;      /* 제목 위쪽 여백을 완전히 없앰 */
+    margin-bottom: 20px; /* 제목과 입력창 사이의 간격 */
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-dark);
+    text-align: left;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.app-input, .custom-select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e5e5ea;
+  border-radius: 12px;
+  font-size: 15px;
+  background-color: #f9f9fb;
+  color: var(--text-main);
+  outline: none;
+}
+
+.app-input-large {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-main);
+  outline: none;
+  margin-top: 8px;
+}
+
+.app-input:focus, .custom-select:focus {
+  border-color: var(--accent-blue);
+  background-color: var(--card-bg);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.modal-btns {
+  display: flex;
+  gap: 10px;
+}
+
 .btn {
   flex: 1;
   padding: 14px;
@@ -329,32 +351,384 @@ canvas {
   cursor: pointer;
   font-size: 15px;
 }
-.btn-primary { background: var(--accent-blue); color: white; }
-.btn-secondary { background: #f2f2f7; color: var(--text-muted); }
 
-/* 5. 기타 요소 (기존 유지) */
+.btn-small {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+}
+
+.btn-primary {
+  background-color: var(--accent-blue);
+  color: white;
+}
+
+.btn-secondary { background: var(--bg-main); color: var(--text-muted); }
+
 .floating-btn {
-    position: absolute;
-    bottom: 25px;
-    right: 25px;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: var(--accent-blue);
-    color: white;
-    border: none;
-    box-shadow: 0 8px 24px rgba(0, 122, 255, 0.3);
-    cursor: pointer;
-    z-index: 100;
-    
-    /* 중앙 정렬 핵심 */
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  box-shadow: 0 8px 24px rgba(0, 122, 255, 0.3);
+  cursor: pointer;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  line-height: 0;
+  padding: 0 0 4px 0;
+}
+
+/* --- 사이드바 전용 스타일 --- */
+.sidebar {
+  width: 200px;
+  height: 100%;
+  background: var(--card-bg);
+  border-right: var(--std-border); /* 기존 테두리 스타일 활용 */
+  display: flex;
+  flex-direction: column;
+  padding: 30px 20px;
+  flex-shrink: 0;
+}
+
+.sidebar-logo {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--accent-blue);
+  letter-spacing: -1px;
+  margin-bottom: 40px;
+  padding-left: 10px;
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-group.bottom {
+  margin-top: auto; /* 설정 버튼을 아래로 밀어냄 */
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+  background: #f2f2f7;
+  color: var(--text-main);
+}
+
+.nav-item.active {
+  background: rgba(0, 122, 255, 0.1);
+  color: var(--accent-blue);
+}
+
+.main-content {
+    flex: 1;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    height: 100vh;
+    overflow: hidden; /* 전체 스크롤 방지 */
+    padding: 24px;
+    gap: 24px;
+    align-items: stretch; /* [추가] 자식 요소들의 높이를 동일하게 확장 */
+}
+
+.hidden {
+  display: none !important;
+}
+
+#view-budget {
+    display: none;
+    flex-direction: column;
+    overflow-y: auto !important; /* 스크롤 강제 활성화 */
+    height: calc(100vh - 20px); /* 화면 높이에 맞춤 */
+    padding: 10px 20px 0 20px; /* 위쪽 패딩을 확 줄임 */
+    box-sizing: border-box;
+
+    /* IE, Edge */
+    -ms-overflow-style: none;
+    /* Firefox */
+    scrollbar-width: none;
+}
+
+#view-budget::-webkit-scrollbar {
+    display: none;
+}
+
+.budget-status-right::-webkit-scrollbar {
+    display: none;
+}
+
+/* 오른쪽 위젯 고정 위치 조정 */
+.budget-status-right {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    position: sticky;
+    top: 10px; /* 헤더가 있다면 헤더 높이에 맞춰 조절 */
+    max-height: calc(100vh - 100px);
+    overflow-y: auto; /* 위젯 내부도 내용 많으면 스크롤 되게 */
+}
+
+.budget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.budget-group {
+    background: #f9f9fb !important;
+    border-radius: 12px;
+    border: 1px solid #f2f2f7;
+    overflow: hidden; /* 이게 있어야 내부 배경색이 넘칠 때 굴곡이 안 깨짐 */
+    transition: all 0.2s ease;
+}
+
+.budget-content {
+  flex: 1;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.budget-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card-bg);
+  padding: 15px 20px;
+  border-radius: 15px;
+  border: var(--std-border);
+}
+
+.budget-input {
+  width: 150px;
+  padding: 8px;
+  border: 1px solid #e5e5ea;
+  border-radius: 8px;
+  text-align: right;
+  font-weight: 700;
+}
+
+.budget-sticky-header {
+    flex-shrink: 0;
+    margin-bottom: 0px; /* 여백 제거 */
+    padding-bottom: 0px;
+}
+
+/* 왼쪽과 오른쪽 패널 공통 설정 */
+.budget-settings-left, .budget-status-right {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid #f2f2f7;
     
-    /* 텍스트(문자) 정렬 보정 */
-    font-size: 32px;
-    line-height: 0; /* 라인 높이를 0으로 만들어 텍스트 기본 여백 제거 */
-    padding: 0;
-    padding-bottom: 4px; /* 플러스 기호 특성상 살짝 위로 치우쳐 보일 때만 조정 */
+    /* [추가] 높이 고정 및 내부 스크롤 설정 */
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* 부모 높이에 맞춤 */
+    overflow: hidden; 
+}
+
+.budget-sticky-header h2 {
+    font-size: 24px;
+    font-weight: 850;
+    color: var(--text-main);
+    letter-spacing: -1px;
+}
+
+.budget-sticky-header .label {
+    font-size: 13px !important;
+    font-weight: 700;
+    color: var(--text-main); /* 더 진하게 */
+    margin-bottom: 4px;
+}
+
+#budget-category-list-wrapper {
+    flex: 1; /* 남은 공간 모두 차지 */
+    overflow-y: auto; /* 이 영역만 스크롤 */
+    padding-top: 0px; /* 상단 여백 0 */
+    padding-bottom: 20px; /* 최하단 여백 */
+    -ms-overflow-style: none; scrollbar-width: none;
+}
+#budget-category-list-wrapper::-webkit-scrollbar { display: none; }
+
+.sub-budget-list {
+    display: block !important; /* JS에서 block/none 대신 클래스로 제어 */
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.2s;
+    opacity: 0;
+}
+
+.sub-budget-list.open {
+    max-height: 1000px; /* 충분한 높이 */
+    opacity: 1;
+    padding-bottom: 10px;
+}
+
+.sub-budget-container {
+    padding: 4px 0 12px 0;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+.hidden-sub {
+    display: none !important;
+}
+
+.budget-input:focus, .sub-budget-input:focus {
+    color: var(--accent-blue);
+    outline: none;
+}
+
+.budget-group:last-child {
+  margin-bottom: 40px; /* 최하단 여백 확보 */
+}
+
+.budget-group:hover {
+    background: #f2f2f7 !important;
+}
+
+/* 화살표 회전 애니메이션 */
+.arrow-icon {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.3s ease;
+    color: var(--text-muted);
+}
+.arrow-icon.rotate {
+    transform: rotate(180deg);
+}
+
+.section-title {
+    margin: 12px 0 6px 4px; /* 위 12px, 아래 6px로 대폭 축소 */
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+/* --- 대시보드 예산 사용률 프로그레스 바 (추가분) --- */
+.budget-usage-container { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 16px; 
+  padding: 10px 5px; 
+}
+
+.usage-item { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 6px; 
+}
+
+.usage-info { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+}
+
+.usage-label { 
+  font-size: 14px; 
+  font-weight: 700; 
+  color: var(--text-main); 
+}
+
+.usage-percent { 
+  font-size: 13px; 
+  font-weight: 700; 
+}
+
+.progress-bar-bg { 
+  width: 100%; 
+  height: 8px; 
+  background: #eeeef3; 
+  border-radius: 10px; 
+  overflow: hidden; 
+}
+
+.progress-bar-fill { 
+  height: 100%; 
+  border-radius: 10px; 
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+/* 사용률 색상 */
+.status-safe { background: #4ade80; }    /* 초록 */
+.status-warning { background: #facc15; } /* 노랑 */
+.status-danger { background: #fb7185; }  /* 빨강 */
+
+.usage-amount-text { 
+  font-size: 11px; 
+  color: var(--text-muted); 
+  margin-top: 2px; 
+}
+
+/* --- 예산 설정 아코디언 애니메이션 보정 (추가분) --- */
+.sub-budget-list {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+}
+
+.sub-budget-list.open {
+  max-height: 1000px;
+  opacity: 1;
+}
+
+.arrow-icon {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.arrow-icon.rotate {
+  transform: rotate(180deg);
+}
+
+/* 예산 페이지 2분할 레이아웃 */
+.budget-split-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    flex: 1;            /* 남은 세로 공간 모두 차지 */
+    min-height: 0;      /* 중요: 내부 스크롤을 위해 높이 초기화 */
+}
+
+/* 남은 금액 강조 스타일 */
+.usage-remain-text {
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+.text-remain { color: var(--accent-blue); } /* 남았을 때 파란색 */
+.text-over { color: var(--danger-red); }    /* 초과했을 때 빨간색 */
+
+/* 반응형: 화면 작아지면 다시 한 줄로 */
+@media (max-width: 900px) {
+    .budget-split-container { grid-template-columns: 1fr; }
 }

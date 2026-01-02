@@ -6,8 +6,16 @@ export function DeleteTransaction(arg1) {
   return window['go']['main']['App']['DeleteTransaction'](arg1);
 }
 
+export function GetBudget() {
+  return window['go']['main']['App']['GetBudget']();
+}
+
 export function GetTransactions() {
   return window['go']['main']['App']['GetTransactions']();
+}
+
+export function SaveBudget(arg1, arg2, arg3) {
+  return window['go']['main']['App']['SaveBudget'](arg1, arg2, arg3);
 }
 
 export function SaveTransaction(arg1, arg2, arg3, arg4, arg5, arg6) {

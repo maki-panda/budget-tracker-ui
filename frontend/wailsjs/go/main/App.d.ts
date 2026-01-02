@@ -4,7 +4,11 @@ import {main} from '../models';
 
 export function DeleteTransaction(arg1:number):Promise<string>;
 
+export function GetBudget():Promise<main.Budget>;
+
 export function GetTransactions():Promise<Array<main.Transaction>>;
+
+export function SaveBudget(arg1:number,arg2:Record<string, number>,arg3:Record<string, Record<string, number>>):Promise<void>;
 
 export function SaveTransaction(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:number):Promise<string>;
 

@@ -1,5 +1,21 @@
 export namespace main {
 	
+	export class Budget {
+	    total: number;
+	    categories: Record<string, number>;
+	    subCategories: Record<string, any>;
+	
+	    static createFrom(source: any = {}) {
+	        return new Budget(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.total = source["total"];
+	        this.categories = source["categories"];
+	        this.subCategories = source["subCategories"];
+	    }
+	}
 	export class Transaction {
 	    id: number;
 	    date: string;

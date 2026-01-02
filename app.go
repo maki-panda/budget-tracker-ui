@@ -21,9 +21,21 @@ type Transaction struct {
 	Color       string `json:"color"`
 }
 
+type Budget struct {
+	Total         int                       `json:"total"`
+	Categories    map[string]int            `json:"categories"`
+	SubCategories map[string]map[string]int `json:"subCategories"` // { "쇼핑": { "웹툰": 50000 } }
+}
+
 type App struct {
 	ctx context.Context
 	db  *sql.DB
+}
+
+var userBudget Budget = Budget{
+	Total:         0,
+	Categories:    make(map[string]int),
+	SubCategories: make(map[string]map[string]int),
 }
 
 func NewApp() *App { return &App{} }
@@ -144,4 +156,16 @@ func (a *App) UpdateTransaction(id int, date, category, subCategory, payment, de
 		return "수정 실패: " + err.Error()
 	}
 	return "수정이 완료되었습니다."
+}
+
+// SaveBudget: 프론트에서 예산 정보를 받아 저장
+func (a *App) SaveBudget(total int, categories map[string]int, subs map[string]map[string]int) {
+	userBudget.Total = total
+	userBudget.Categories = categories
+	userBudget.SubCategories = subs
+}
+
+// GetBudget: 저장된 예산 정보를 프론트로 반환
+func (a *App) GetBudget() Budget {
+	return userBudget
 }
